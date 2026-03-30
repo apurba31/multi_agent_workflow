@@ -37,15 +37,18 @@ The system follows a **supervisor loop**:
 |-------|------|-------|
 | **Orchestrator** | Decomposes tasks, routes to specialists | — (LLM-only) |
 | **Research** | Web search, Wikipedia, URL scraping, summarization | `duckduckgo_search`, `wikipedia_search`, `scrape_url`, `summarize_text` |
-| **Browser** | Playwright-based web automation | `navigate_to`, `click_element`, `fill_input`, `extract_text`, `take_screenshot`, `wait_for_element`, `get_page_links` |
+| **Browser** | Playwright-based web automation | `navigate_to`, `click_element`, `fill_input`, `extract_text`, `take_screenshot`, `wait_for_element`, `get_page_links`, `close_browser` |
 | **Comms** | Telegram and email notifications | `send_telegram`, `send_email`, `format_markdown`, `format_html` |
 | **Code** | Write, execute, test, and lint Python | `write_file`, `read_file`, `execute_python`, `execute_shell`, `run_pytest`, `lint_code` |
-| **Reflection** | Quality review — catches errors, triggers retries | — (LLM-only) |
+| **Reflection** | Reviews the last agent output; may set `retry_required` and surface issues | — (LLM-only JSON review) |
+
+This repository’s **single user-facing doc** for setup, running, configuration, UI, tests, and CI is this file. Agent/orchestrator **prompts and Cursor rules** live under `.cursor/rules/` (not duplicated here).
 
 ## Project Structure
 
 ```
 multi_agent/
+├── .cursor/rules/             # Cursor rules + agent system prompts
 ├── agents/
 │   ├── orchestrator.py        # Central router
 │   ├── research_agent.py      # Web research
@@ -61,7 +64,11 @@ multi_agent/
 ├── graph/
 │   ├── state.py               # AgentState TypedDict
 │   ├── graph_builder.py       # LangGraph node/edge wiring
+│   ├── runner.py              # Initial state + streaming API (CLI + UI)
 │   └── checkpointer.py        # State persistence
+├── ui/
+│   ├── app.py                 # Streamlit dashboard (steps + upload)
+│   └── upload_parser.py       # Parse uploaded files into prompt text
 ├── llm/
 │   └── ollama_client.py       # ChatOllama factory
 ├── config/
@@ -71,6 +78,8 @@ multi_agent/
 │   ├── test_tools.py          # Tool unit tests
 │   ├── test_agents.py         # Agent node tests (mocked LLM)
 │   ├── test_graph.py          # Graph compilation + routing
+│   ├── test_upload_parser.py  # Upload parsing + prompt building
+│   ├── test_runner.py         # Graph runner / streaming helpers
 │   └── conftest.py            # Shared fixtures
 ├── main.py                    # CLI entry point
 ├── pyproject.toml             # Dependencies + config
@@ -97,8 +106,8 @@ python -m venv .venv
 source .venv/bin/activate   # Linux/macOS
 .venv\Scripts\activate      # Windows
 
-# Install dependencies
-pip install -e ".[dev]"
+# Install dependencies (core + tests/lint + Streamlit UI)
+pip install -e ".[dev,ui]"
 
 # Install Playwright browsers
 playwright install chromium
@@ -129,9 +138,19 @@ ollama pull llama3.1:8b
 
 ### 4. Run a task
 
+**CLI:**
+
 ```bash
 python main.py "Research the latest LLM benchmarks and send me a Telegram summary"
 ```
+
+**Streamlit UI** (step timeline, file upload) — uses the `[ui]` extra (already included if you ran `pip install -e ".[dev,ui]"` above):
+
+```bash
+streamlit run ui/app.py
+```
+
+Open the URL Streamlit prints (usually `http://localhost:8501`). Enter a task, optionally upload a `.txt`, `.md`, `.csv`, `.json`, or similar file — the parsed text is injected into the first message so agents can use it. Each graph node appears in an expandable timeline with subtask, result, and errors.
 
 ```bash
 python main.py "Go to https://news.ycombinator.com and get the top 5 stories"
@@ -164,6 +183,17 @@ All configuration is via environment variables (or `.env` file):
 | `MAX_ITERATIONS` | `10` | Max orchestrator loops |
 | `CODE_EXECUTION_TIMEOUT` | `30` | Seconds before code exec times out |
 | `AGENT_WORKSPACE` | `/tmp/agent_workspace` | Sandbox directory for code agent |
+
+## Optional extras
+
+| Extra | Purpose |
+|-------|---------|
+| `dev` | pytest, ruff, pytest-mock |
+| `ui` | Streamlit dashboard (`streamlit run ui/app.py`) |
+
+```bash
+pip install -e ".[dev,ui]"
+```
 
 ## Running Tests
 

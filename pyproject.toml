@@ -34,9 +34,12 @@ dev = [
     "pytest-mock>=3.14",
     "ruff>=0.7",
 ]
+ui = [
+    "streamlit>=1.39",
+]
 
 [tool.setuptools.packages.find]
-include = ["agents*", "config*", "graph*", "llm*", "tools*"]
+include = ["agents*", "config*", "graph*", "llm*", "tools*", "ui*"]
 
 [tool.ruff]
 target-version = "py311"

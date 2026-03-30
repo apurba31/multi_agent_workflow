@@ -39,7 +39,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,ui]"
 
       - name: Run tests
         run: pytest -v --tb=short
@@ -56,13 +56,16 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,ui]"
 
       - name: Verify all modules import
         run: |
           python -c "from config.settings import Settings"
           python -c "from graph.state import AgentState"
           python -c "from graph.checkpointer import get_checkpointer"
+          python -c "from graph.runner import create_initial_state, stream_graph_run"
+          python -c "from ui.upload_parser import parse_upload, build_prompt_with_upload"
+          python -c "import ui.app"
           python -c "from llm.ollama_client import get_llm"
           python -c "from tools.search_tools import RESEARCH_TOOLS"
           python -c "from tools.browser_tools import BROWSER_TOOLS"
