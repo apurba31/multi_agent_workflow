@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Run ruff
+        run: ruff check .
+
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run tests
+        run: pytest -v --tb=short
+
+  import-check:
+    name: Import Check
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Verify all modules import
+        run: |
+          python -c "from config.settings import Settings"
+          python -c "from graph.state import AgentState"
+          python -c "from graph.checkpointer import get_checkpointer"
+          python -c "from llm.ollama_client import get_llm"
+          python -c "from tools.search_tools import RESEARCH_TOOLS"
+          python -c "from tools.browser_tools import BROWSER_TOOLS"
+          python -c "from tools.comms_tools import COMMS_TOOLS"
+          python -c "from tools.code_tools import CODE_TOOLS"
+          python -c "from agents.orchestrator import orchestrator"
+          python -c "from agents.research_agent import research_agent"
+          python -c "from agents.browser_agent import browser_agent"
+          python -c "from agents.comms_agent import comms_agent"
+          python -c "from agents.code_agent import code_agent"
+          python -c "from agents.reflection_agent import reflection_agent"
+          python -c "from graph.graph_builder import build_graph"
