@@ -8,7 +8,9 @@ from loguru import logger
 from graph.state import AgentState
 from llm.ollama_client import get_llm
 
-SYSTEM_PROMPT = """You are the Reflection Agent — a quality-control reviewer for a multi-agent system.
+SYSTEM_PROMPT = """\
+You are the Reflection Agent — a quality-control reviewer for a \
+multi-agent system.
 
 Your job:
 - Review the latest agent output in the conversation.

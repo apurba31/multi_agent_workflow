@@ -3,9 +3,6 @@ from __future__ import annotations
 import json
 from unittest.mock import MagicMock, patch
 
-import pytest
-from langchain_core.messages import AIMessage
-
 
 class TestOrchestrator:
     def test_routes_to_end_on_max_iterations(self, base_state):
@@ -76,7 +73,8 @@ class TestOrchestrator:
 
     def test_handles_non_json_with_embedded_json(self, base_state, mock_llm_response):
         llm = mock_llm_response(
-            'Sure! Here is my decision: {"next_agent": "code", "subtask": "write fib", "reasoning": "needs code"}'
+            'Sure! Here is my decision: '
+            '{"next_agent": "code", "subtask": "write fib", "reasoning": "needs code"}'
         )
         with patch("agents.orchestrator.get_llm", return_value=llm):
             from agents.orchestrator import orchestrator

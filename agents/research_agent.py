@@ -7,7 +7,9 @@ from graph.state import AgentState
 from llm.ollama_client import get_llm
 from tools.search_tools import RESEARCH_TOOLS
 
-SYSTEM_PROMPT = """You are the Research Agent — a specialist in information retrieval and summarization.
+SYSTEM_PROMPT = """\
+You are the Research Agent — a specialist in information retrieval \
+and summarization.
 
 Available tools: duckduckgo_search, wikipedia_search, scrape_url, summarize_text.
 

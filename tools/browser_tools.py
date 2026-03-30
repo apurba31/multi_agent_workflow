@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import asyncio
-from pathlib import Path
 from typing import Any
 
 from langchain_core.tools import tool
@@ -161,7 +160,7 @@ def get_page_links(limit: int = 50) -> str:
         links = await page.eval_on_selector_all(
             "a[href]", "els => els.map(e => ({text: e.innerText.trim(), href: e.href}))"
         )
-        lines = [f"{l['text']} → {l['href']}" for l in links[:limit] if l["text"]]
+        lines = [f"{link['text']} → {link['href']}" for link in links[:limit] if link["text"]]
         return "\n".join(lines) if lines else "No links found."
 
     try:

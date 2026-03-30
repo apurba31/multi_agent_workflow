@@ -1,13 +1,8 @@
 from __future__ import annotations
 
-import re
-import tempfile
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-from tools.code_tools import CODE_TOOLS, execute_shell, lint_code, read_file, write_file
+from tools.code_tools import CODE_TOOLS, execute_shell, read_file, write_file
 from tools.comms_tools import (
     COMMS_TOOLS,
     _escape_markdown_v2,

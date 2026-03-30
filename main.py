@@ -16,7 +16,10 @@ def setup_logging() -> None:
     logger.add(
         sys.stderr,
         level="INFO",
-        format="<green>{time:HH:mm:ss}</green> | <level>{level:<8}</level> | <cyan>{name}</cyan> — {message}",
+        format=(
+            "<green>{time:HH:mm:ss}</green> | <level>{level:<8}</level>"
+            " | <cyan>{name}</cyan> — {message}"
+        ),
     )
 
 

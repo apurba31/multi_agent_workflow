@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
-import pytest
 from langgraph.graph import END
 
 from graph.graph_builder import _route_after_orchestrator, _route_after_reflection, build_graph
@@ -67,8 +64,9 @@ class TestGraphCompilation:
 
 class TestCheckpointer:
     def test_get_checkpointer_returns_memory_saver(self):
-        from graph.checkpointer import get_checkpointer
         from langgraph.checkpoint.memory import MemorySaver
+
+        from graph.checkpointer import get_checkpointer
 
         cp = get_checkpointer()
         assert isinstance(cp, MemorySaver)

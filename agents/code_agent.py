@@ -7,7 +7,9 @@ from graph.state import AgentState
 from llm.ollama_client import get_llm
 from tools.code_tools import CODE_TOOLS
 
-SYSTEM_PROMPT = """You are the Code Agent — a specialist in writing, running, testing, and explaining code.
+SYSTEM_PROMPT = """\
+You are the Code Agent — a specialist in writing, running, testing, \
+and explaining code.
 
 Available tools: write_file, read_file, execute_python, execute_shell, run_pytest, lint_code.
 
